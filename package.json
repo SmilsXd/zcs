@@ -1,0 +1,32 @@
+{
+  "name": "zcs",
+  "version": "1.0.0",
+  "description": "A quick and light esm / node module to look up state city or zips to get either.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Phara0h/zcs.git"
+  },
+  "keywords": [
+    "zip",
+    "city",
+    "state",
+    "lookup",
+    "light",
+    "fast",
+    "location",
+    "esm",
+    "nodejs",
+    "lookahead",
+    "autocomplete"
+  ],
+  "author": "Jt Whissel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Phara0h/zcs/issues"
+  },
+  "homepage": "https://github.com/Phara0h/zcs#readme"
+}

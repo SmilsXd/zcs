@@ -1,2 +1,50 @@
 # zcs
-A quick and light esm / node module to look up state city or zips to get either.
+A quick and light esm / node module to look up state city or zips to get either. It also has lookahead / autocomplete 
+
+## Install
+
+```bash
+
+npm install zcs
+```
+
+
+### Node Usage 
+
+```js
+
+    const { getByStateCity, getByCityState, getByZip, zipLookAhead, cityLookAhead, stateLookAhead } = require('zcs')
+     // optional state as second param
+    console.log(getByCityState('Orlando'))
+
+     // optional city as second param
+    console.log(getByStateCity('FL')) 
+
+    console.log(getByZip('03809'))
+
+    // optional limit as second param
+    console.log(zipLookAhead('038'), 10) 
+    console.log(cityLookAhead('orlan'), 5)
+    console.log(stateLookAhead('N'),10)
+```
+
+
+### Web Usage
+
+
+```js
+ import { getByStateCity, getByCityState, getByZip, zipLookAhead, cityLookAhead, stateLookAhead} from 'zcs'
+
+     // optional state as second param
+    console.log(getByCityState('Orlando'))
+
+     // optional city as second param
+    console.log(getByStateCity('FL')) 
+
+    console.log(getByZip('03809'))
+
+    // optional limit as second param
+    console.log(zipLookAhead('038'), 10) 
+    console.log(cityLookAhead('orlan'), 5)
+    console.log(stateLookAhead('N'),10)
+```
