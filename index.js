@@ -93,3 +93,11 @@ exports.getByStateCity = getByStateCity;
 exports.zipLookAhead = zipLookAhead;
 exports.stateLookAhead = stateLookAhead;
 exports.cityLookAhead = cityLookAhead;
+
+exports.internal = {
+    list,
+    data,
+    stateindexes,
+    cityindexes,
+    zipindexes
+}
