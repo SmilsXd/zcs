@@ -31,4 +31,7 @@ module.exports = {
               DELIMITER ',';`
 
     4. Run `node write-output.js`.
+    5. Run 'node compress-files.js`.
+
+    Note: checked in output files are placeholders only. Run script to generate data.
 */
