@@ -1,7 +1,7 @@
 // *** SET THESE VARIABLES ***
 
 module.exports = {
-  DATA_FILE_LOC: "/home/clayton/Downloads/NAD_r10.txt",
+  DATA_FILE_LOC: "/home/user/NAD_r10.txt",
   POSTGRESQL_CONN: "postgres://postgres:1234@localhost/street_data",
   LOG_INTERVAL: 10000,
 };
@@ -27,7 +27,7 @@ module.exports = {
           a. Connect to databas using `psql street_data`
           b. Run the following with your path to dump the data:
             `COPY data(name, number, zip_code, zip_index, unit, mgrs)
-              FROM '/home/clayton/Documents/Trazi Ventures/zcs/scripts/nad-streets-units-mgrs/dumps/streets.txt'
+              FROM '/home/user/zcs/scripts/nad-streets-units-mgrs/dumps/streets.txt'
               DELIMITER ',';`
 
     4. Run `node write-output.js`.

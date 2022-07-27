@@ -18,19 +18,61 @@ let elapsedTime = function () {
 // zcs data
 const {
   zipindexes, // format - "84088": 22
+  list,
 } = zcs.internal;
 
 const stats = {
   records: 0,
 };
 
-const ALPHA_NUMERIC = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9']
+const ALPHA_NUMERIC = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+];
 
 function displayStats() {
   const heapUsed = process.memoryUsage().heapUsed / 1024 / 1024;
 
   process.stdout.write(
-    `\rProcessed ${stats.records} records. Elapsed: ${elapsedTime()}. Heap used: ${Math.round(heapUsed * 100) / 100}MB`
+    `\rProcessed ${
+      stats.records
+    } records. Elapsed: ${elapsedTime()}. Heap used: ${
+      Math.round(heapUsed * 100) / 100
+    }MB`
   );
 }
 
@@ -51,8 +93,8 @@ function cleanUpStr(str) {
     if (
       (char === " " &&
         resultStr.length > 0 &&
-        resultStr[resultStr.length - 1] === " ") || char ===
-      '\\'
+        resultStr[resultStr.length - 1] === " ") ||
+      char === "\\"
     ) {
       continue;
     } else {
@@ -77,11 +119,11 @@ async function transformData() {
   console.log(`Processing data from ${DATA_FILE_LOC}...`);
 
   // remove data from any previous runs
-  await fsproms.writeFile(process.cwd() + "/dumps/streets.txt", "");
+  await fsproms.writeFile(process.cwd() + "/dumps/streets.csv", "");
 
   // open read and write streams
   const writeStream = fs.createWriteStream(
-    process.cwd() + "/dumps/streets.txt"
+    process.cwd() + "/dumps/streets.csv"
   );
 
   const fileStream = fs.createReadStream(DATA_FILE_LOC);
@@ -103,30 +145,30 @@ async function transformData() {
       // Combine street name: StN_PreMod[11], StN_PreDir[12], StN_PreTyp[13], StN_PreSep[14], StreetName[15], StN_PosTyp[16], StN_PosDir[17], StN_PosMod[18]
       const streetName = cleanUpStr(
         (columns[11] + "  " || "") +
-        (columns[12] + "  " || "") +
-        (columns[13] + "  " || "") +
-        (columns[14] + "  " || "") +
-        (columns[15] + "  " || "") +
-        (columns[16] + "  " || "") +
-        (columns[17] + "  " || "") +
-        (columns[18] + "  " || "")
+          (columns[12] + "  " || "") +
+          (columns[13] + "  " || "") +
+          (columns[14] + "  " || "") +
+          (columns[15] + "  " || "") +
+          (columns[16] + "  " || "") +
+          (columns[17] + "  " || "") +
+          (columns[18] + "  " || "")
       );
 
       // Combine street number: AddNum_Pre[19], Add_Number[20], AddNum_Suf[21]
       const streetNumber = cleanUpStr(
         (columns[19] + "  " || "") +
-        (columns[20] + "  " || "") +
-        (columns[21] + "  " || "")
+          (columns[20] + "  " || "") +
+          (columns[21] + "  " || "")
       );
 
       // Building LandmkPart[22], LandmkName[23], Building[24], Floor[25], Unit[26], Room[27]
       const unit = cleanUpStr(
         (columns[22] + "  " || "") +
-        (columns[23] + "  " || "") +
-        (columns[24] ? "Building " + columns[24] + "  " : "") +
-        (columns[25] ? "Floor " + columns[25] + "  " : "") +
-        (columns[26] ? "Unit " + columns[26] + "  " : "") +
-        (columns[27] ? "Room " + columns[27] + "  " : "")
+          (columns[23] + "  " || "") +
+          (columns[24] ? "Building " + columns[24] + "  " : "") +
+          (columns[25] ? "Floor " + columns[25] + "  " : "") +
+          (columns[26] ? "Unit " + columns[26] + "  " : "") +
+          (columns[27] ? "Room " + columns[27] + "  " : "")
       );
 
       // Generate MGRS from lat and long: Longitude[30], Latitude[31]
@@ -138,30 +180,30 @@ async function transformData() {
       if (!isNaN(lattitude) && !isNaN(longitude)) {
         const tempMgrs = Mgrs.forward([lattitude, longitude]);
 
-        let i = 0
-        for (i; i< tempMgrs.length; i++) {
+        let i = 0;
+        for (i; i < tempMgrs.length; i++) {
           if (ALPHA_NUMERIC.indexOf(tempMgrs[i]) < 1) {
-            continue
+            continue;
           }
 
-          mgrs += tempMgrs[i]
+          mgrs += tempMgrs[i];
         }
       }
 
       // Write out to dump file
       writeStream.write(
-        (streetName || '') +
-        "," +
-        (streetNumber || '') +
-        "," +
-        (zipCode || '') +
-        "," +
-        (zipIndex || '') +
-        "," +
-        (unit || '') +
-        "," +
-        (mgrs || '') +
-        "\n"
+        (streetName || "") +
+          "," +
+          (streetNumber || "") +
+          "," +
+          (zipCode || "") +
+          "," +
+          (zipIndex || "") +
+          "," +
+          (unit || "") +
+          "," +
+          (mgrs || "") +
+          "\n"
       );
     }
 
@@ -174,8 +216,8 @@ async function transformData() {
     }
   });
 
-  rl.on('close', () => {
-    console.log(`\ndone.\n`)
+  rl.on("close", () => {
+    console.log(`\ndone.\n`);
   });
 }
 

@@ -26,8 +26,10 @@ function displayStats() {
   const heapUsed = process.memoryUsage().heapUsed / 1024 / 1024;
 
   process.stdout.write(
-    `\rProcessed ${stats.records} records. Unique names: ${stats.uniqueNames
-    } Elapsed: ${elapsedTime()}. Heap used: ${Math.round(heapUsed * 100) / 100
+    `\rProcessed ${stats.records} records. Unique names: ${
+      stats.uniqueNames
+    } Elapsed: ${elapsedTime()}. Heap used: ${
+      Math.round(heapUsed * 100) / 100
     }MB`
   );
 }
@@ -36,22 +38,22 @@ async function writeOut() {
   console.log("\nWriting out data...");
 
   // remove data from any previous runs
-  await fsproms.writeFile(process.cwd() + "/output/street-names.txt", "");
-  await fsproms.writeFile(process.cwd() + "/output/streets-index.txt", "");
-  await fsproms.writeFile(process.cwd() + "/output/street-data.txt", "");
-  await fsproms.writeFile(process.cwd() + "/output/mgrs.txt", "");
+  await fsproms.writeFile(process.cwd() + "/output/street-names.json", "");
+  await fsproms.writeFile(process.cwd() + "/output/streets-index.json", "");
+  await fsproms.writeFile(process.cwd() + "/output/street-data.json", "");
+  await fsproms.writeFile(process.cwd() + "/output/mgrs.json", "");
 
   // open write streams
   const streetNamesStream = fs.createWriteStream(
-    process.cwd() + "/output/street-names.txt"
+    process.cwd() + "/output/street-names.json"
   );
 
   const streetIndexStream = fs.createWriteStream(
-    process.cwd() + "/output/streets-index.txt"
+    process.cwd() + "/output/streets-index.json"
   );
 
   const streetDataStream = fs.createWriteStream(
-    process.cwd() + "/output/street-data.txt"
+    process.cwd() + "/output/street-data.json"
   );
 
   streetDataStream.write(`[\n`);
@@ -71,8 +73,10 @@ async function writeOut() {
 
     if (street.name !== streetName) {
       // Write street data to file
-      // TODO replace stringify with raw text output
-      streetDataStream.write(JSON.stringify(streetData) + "\n");
+      // TODO replace stringify with raw text output (if it becomes to slow)
+      streetDataStream.write(
+        `${index === 0 ? "" : ",\n"}${JSON.stringify(streetData)}`
+      );
 
       // Write unique street names to file
       streetNamesStream.write(`${index === 0 ? "" : ","}"${streetName}"`);
@@ -92,7 +96,7 @@ async function writeOut() {
     }
 
     if (!streetData[street.number][street.zip_index]) {
-      streetData[street.number][street.zip_index] = []
+      streetData[street.number][street.zip_index] = [];
     }
 
     // Add units
@@ -122,7 +126,11 @@ async function writeOut() {
       ) {
         const checkType = streetData[street.number][street.zip_index][k][0];
 
-        if (checkType && checkType === type) {
+        if (
+          checkType &&
+          checkType === type &&
+          streetData[street.number][street.zip_index][k][1].indexOf(num) < 0
+        ) {
           streetData[street.number][street.zip_index][k][1].push(num);
           addedToTypeArr = true;
           break;
@@ -172,9 +180,16 @@ async function writeOut() {
           index,
         ];
       } else {
-        mgrsData[mgrsParts[0]][mgrsParts[1]][mgrsParts[2]][mgrsParts[3]].push(
-          index
-        );
+        // Only push unique indices
+        if (
+          mgrsData[mgrsParts[0]][mgrsParts[1]][mgrsParts[2]][
+            mgrsParts[3]
+          ].indexOf(index) < 0
+        ) {
+          mgrsData[mgrsParts[0]][mgrsParts[1]][mgrsParts[2]][mgrsParts[3]].push(
+            index
+          );
+        }
       }
     }
 
@@ -202,7 +217,7 @@ async function writeOut() {
 
   streetDataStream.write(`]`);
 
-  const mgrsStream = fs.createWriteStream(process.cwd() + "/output/mgrs.txt");
+  const mgrsStream = fs.createWriteStream(process.cwd() + "/output/mgrs.json");
   // May need to stream this somehow
   mgrsStream.write(JSON.stringify(mgrsData));
   mgrsStream.end();
