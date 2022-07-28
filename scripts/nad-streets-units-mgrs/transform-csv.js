@@ -18,7 +18,6 @@ let elapsedTime = function () {
 // zcs data
 const {
   zipindexes, // format - "84088": 22
-  list,
 } = zcs.internal;
 
 const stats = {
@@ -94,7 +93,10 @@ function cleanUpStr(str) {
       (char === " " &&
         resultStr.length > 0 &&
         resultStr[resultStr.length - 1] === " ") ||
-      char === "\\"
+      char === "\\" ||
+      char === '"' ||
+      char === "'" ||
+      char === "`"
     ) {
       continue;
     } else {

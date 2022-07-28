@@ -205,7 +205,7 @@ async function writeOut() {
 
   // Write street data to file
   // TODO replace stringify with raw text output
-  streetDataStream.write(JSON.stringify(streetData) + "\n");
+  streetDataStream.write(`${JSON.stringify(streetData)}\n`);
 
   // Write unique street names to file
   streetNamesStream.write(`${index === 0 ? "" : ","}"${streetName}"`);
