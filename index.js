@@ -118,13 +118,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getByCityState = getByCityState;
 exports.getByZip = getByZip;
 exports.getByStateCity = getByStateCity;
+exports.getStreetNumbersByName = getStreetNumbersByName;
+exports.getZipsByStreetName = getZipsByStreetName;
 exports.zipLookAhead = zipLookAhead;
 exports.stateLookAhead = stateLookAhead;
 exports.cityLookAhead = cityLookAhead;
 exports.internal = {
     list,
-    data,
+    data,,
+    mgrs,
     stateindexes,
     cityindexes,
-    zipindexes
+    zipindexes,
+    streetsindexes
 }
