@@ -125,7 +125,7 @@ exports.stateLookAhead = stateLookAhead;
 exports.cityLookAhead = cityLookAhead;
 exports.internal = {
     list,
-    data,,
+    data,
     mgrs,
     stateindexes,
     cityindexes,
