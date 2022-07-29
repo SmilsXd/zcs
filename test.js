@@ -6,6 +6,8 @@ async function myFunc() {
     console.log(zipLookAhead('038'))
     console.log(cityLookAhead('orlan'))
     console.log(stateLookAhead('N'))
+    console.log(getStreetNumbersByName('MAIN STREET'))
+    console.log(getZipsByStreetName('MAIN STREET'))
 }
 
 
@@ -18,5 +20,7 @@ async function myFunc() {
     console.log(zipLookAhead('038'))
     console.log(cityLookAhead('orlan'))
     console.log(stateLookAhead('N'))
+    console.log(getStreetNumbersByName('MAIN STREET'))
+    console.log(getZipsByStreetName('MAIN STREET'))
 }
 myFunc()
