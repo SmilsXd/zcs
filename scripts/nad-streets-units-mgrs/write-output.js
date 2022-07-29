@@ -26,10 +26,8 @@ function displayStats() {
   const heapUsed = process.memoryUsage().heapUsed / 1024 / 1024;
 
   process.stdout.write(
-    `\rProcessed ${stats.records} records. Unique names: ${
-      stats.uniqueNames
-    } Elapsed: ${elapsedTime()}. Heap used: ${
-      Math.round(heapUsed * 100) / 100
+    `\rProcessed ${stats.records} records. Unique names: ${stats.uniqueNames
+    } Elapsed: ${elapsedTime()}. Heap used: ${Math.round(heapUsed * 100) / 100
     }MB`
   );
 }
@@ -56,6 +54,8 @@ async function writeOut() {
     process.cwd() + "/output/street-data.json"
   );
 
+  streetNamesStream.write(`[\n`);
+  streetIndexStream.write(`{\n`);
   streetDataStream.write(`[\n`);
 
   const query = new QueryStream("select * from data order by name");
@@ -72,18 +72,49 @@ async function writeOut() {
     if (count === 0) streetName = street.name;
 
     if (street.name !== streetName) {
-      // Write street data to file
-      // TODO replace stringify with raw text output (if it becomes to slow)
       streetDataStream.write(
-        `${index === 0 ? "" : ",\n"}${JSON.stringify(streetData)}`
+        `${index === 0 ? "" : "},\n"}{`
       );
 
+      let i;
+      let j;
+      const streetNumKeys = Object.keys(streetData);
+
+      for (i = 0; i < streetNumKeys.length; i++) {
+        const zipIndexKeys = Object.keys(streetData[streetNumKeys[i]]);
+
+        for (j = 0; j < zipIndexKeys.length; j++) {
+          const zipIndex = zipIndexKeys[j]
+          let isFirst = false
+
+          if (!isFirst) {
+            streetDataStream.write(`${i === 0 ? "" : ","}"${streetNumKeys[i]}":{`);
+          }
+
+          if (streetData[streetNumKeys[i]][zipIndex] && streetData[streetNumKeys[i]][zipIndex].length > 0) {
+            // write out units
+            streetDataStream.write(`"${zipIndex}":${JSON.stringify(streetData[streetNumKeys[i]][zipIndex])}`);
+          } else {
+            // write out zip index only
+            streetDataStream.write(
+              `"${zipIndex}"`
+            );
+          }
+
+          if (j === zipIndexKeys.length - 1) {
+            streetDataStream.write(`}`);
+          }
+
+          isFirst = true
+        }
+      }
+
       // Write unique street names to file
-      streetNamesStream.write(`${index === 0 ? "" : ","}"${streetName}"`);
+      streetNamesStream.write(`${index === 0 ? "" : ",\n"}"${streetName}"`);
 
       // write street indexes to file
       streetIndexStream.write(
-        `${index === 0 ? "" : ","}"${streetName}":${Number.parseInt(index)}`
+        `${index === 0 ? "" : ",\n"}"${streetName}":${Number.parseInt(index)}`
       );
 
       index++;
@@ -111,7 +142,7 @@ async function writeOut() {
           if (k === split.length - 1) {
             num = split[k];
           } else {
-            type += split[k];
+            type += `${k === 0 ? '' : ' '}${split[k]}`;
           }
         }
       }
@@ -203,7 +234,7 @@ async function writeOut() {
     }
   }
 
-  // Write street data to file
+  // Write street data to file one last time
   // TODO replace stringify with raw text output
   streetDataStream.write(`${JSON.stringify(streetData)}\n`);
 
@@ -215,7 +246,9 @@ async function writeOut() {
     `${index === 0 ? "" : ","}"${streetName}":${Number.parseInt(index)}`
   );
 
-  streetDataStream.write(`]`);
+  streetNamesStream.write(`\n]`);
+  streetIndexStream.write(`\n}`);
+  streetDataStream.write(`\n]`);
 
   const mgrsStream = fs.createWriteStream(process.cwd() + "/output/mgrs.json");
   // May need to stream this somehow
