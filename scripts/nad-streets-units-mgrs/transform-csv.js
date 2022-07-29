@@ -67,10 +67,8 @@ function displayStats() {
   const heapUsed = process.memoryUsage().heapUsed / 1024 / 1024;
 
   process.stdout.write(
-    `\rProcessed ${
-      stats.records
-    } records. Elapsed: ${elapsedTime()}. Heap used: ${
-      Math.round(heapUsed * 100) / 100
+    `\rProcessed ${stats.records
+    } records. Elapsed: ${elapsedTime()}. Heap used: ${Math.round(heapUsed * 100) / 100
     }MB`
   );
 }
@@ -146,31 +144,31 @@ async function transformData() {
 
       // Combine street name: StN_PreMod[11], StN_PreDir[12], StN_PreTyp[13], StN_PreSep[14], StreetName[15], StN_PosTyp[16], StN_PosDir[17], StN_PosMod[18]
       const streetName = cleanUpStr(
-        (columns[11] + "  " || "") +
-          (columns[12] + "  " || "") +
-          (columns[13] + "  " || "") +
-          (columns[14] + "  " || "") +
-          (columns[15] + "  " || "") +
-          (columns[16] + "  " || "") +
-          (columns[17] + "  " || "") +
-          (columns[18] + "  " || "")
+        (columns[11] + " " || "") +
+        (columns[12] + " " || "") +
+        (columns[13] + " " || "") +
+        (columns[14] + " " || "") +
+        (columns[15] + " " || "") +
+        (columns[16] + " " || "") +
+        (columns[17] + " " || "") +
+        (columns[18] + " " || "")
       );
 
       // Combine street number: AddNum_Pre[19], Add_Number[20], AddNum_Suf[21]
       const streetNumber = cleanUpStr(
-        (columns[19] + "  " || "") +
-          (columns[20] + "  " || "") +
-          (columns[21] + "  " || "")
+        (columns[19] + " " || "") +
+        (columns[20] + " " || "") +
+        (columns[21] + " " || "")
       );
 
       // Building LandmkPart[22], LandmkName[23], Building[24], Floor[25], Unit[26], Room[27]
       const unit = cleanUpStr(
-        (columns[22] + "  " || "") +
-          (columns[23] + "  " || "") +
-          (columns[24] ? "Building " + columns[24] + "  " : "") +
-          (columns[25] ? "Floor " + columns[25] + "  " : "") +
-          (columns[26] ? "Unit " + columns[26] + "  " : "") +
-          (columns[27] ? "Room " + columns[27] + "  " : "")
+        (columns[22] + " " || "") +
+        (columns[23] + " " || "") +
+        (columns[24] ? "Building " + columns[24] + " " : "") +
+        (columns[25] ? "Floor " + columns[25] + " " : "") +
+        (columns[26] && columns[26] != '0' ? "Unit " + columns[26] + " " : "") +
+        (columns[27] ? "Room " + columns[27] + " " : "")
       );
 
       // Generate MGRS from lat and long: Longitude[30], Latitude[31]
@@ -192,21 +190,23 @@ async function transformData() {
         }
       }
 
-      // Write out to dump file
-      writeStream.write(
-        (streetName || "") +
+      if (streetName && zipIndex) {
+        // Write out to dump file
+        writeStream.write(
+          streetName +
           "," +
           (streetNumber || "") +
           "," +
           (zipCode || "") +
           "," +
-          (zipIndex || "") +
+          zipIndex +
           "," +
           (unit || "") +
           "," +
           (mgrs || "") +
           "\n"
-      );
+        );
+      }
     }
 
     lineNumber++;
