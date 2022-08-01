@@ -16,36 +16,36 @@ async function compress(input, output) {
 async function compressThemAll() {
   // remove old compressed files
   try {
-    unlinkSync(process.cwd() + "/output/compressed/mgrs.json.gz");
-    unlinkSync(process.cwd() + "/output/compressed/street-data.json.gz");
-    unlinkSync(process.cwd() + "/output/compressed/street-names.json.gz");
-    unlinkSync(process.cwd() + "/output/compressed/streets-index.json.gz");
+    unlinkSync(process.cwd() + "/output/compressed/mgrs.js.gz");
+    unlinkSync(process.cwd() + "/output/compressed/street-data.js.gz");
+    unlinkSync(process.cwd() + "/output/compressed/street-names.js.gz");
+    unlinkSync(process.cwd() + "/output/compressed/streets-index.js.gz");
   } catch {
     //
   }
 
   // MGRS
   await compress(
-    process.cwd() + "/output/mgrs.json",
-    process.cwd() + "/output/compressed/mgrs.json.gz"
+    process.cwd() + "/output/mgrs.js",
+    process.cwd() + "/output/compressed/mgrs.js.gz"
   );
 
   // Street data
   await compress(
-    process.cwd() + "/output/street-data.json",
-    process.cwd() + "/output/compressed/street-data.json.gz"
+    process.cwd() + "/output/street-data.js",
+    process.cwd() + "/output/compressed/street-data.js.gz"
   );
 
   // Street names
   await compress(
-    process.cwd() + "/output/street-names.json",
-    process.cwd() + "/output/compressed/street-names.json.gz"
+    process.cwd() + "/output/street-names.js",
+    process.cwd() + "/output/compressed/street-names.js.gz"
   );
 
   // Streets Index
   await compress(
-    process.cwd() + "/output/streets-index.json",
-    process.cwd() + "/output/compressed/streets-index.json.gz"
+    process.cwd() + "/output/streets-index.js",
+    process.cwd() + "/output/compressed/streets-index.js.gz"
   );
 }
 

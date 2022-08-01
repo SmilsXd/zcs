@@ -36,27 +36,27 @@ async function writeOut() {
   console.log("\nWriting out data...");
 
   // remove data from any previous runs
-  await fsproms.writeFile(process.cwd() + "/output/street-names.json", "");
-  await fsproms.writeFile(process.cwd() + "/output/streets-index.json", "");
-  await fsproms.writeFile(process.cwd() + "/output/street-data.json", "");
-  await fsproms.writeFile(process.cwd() + "/output/mgrs.json", "");
+  await fsproms.writeFile(process.cwd() + "/output/street-names.js", "");
+  await fsproms.writeFile(process.cwd() + "/output/streets-index.js", "");
+  await fsproms.writeFile(process.cwd() + "/output/street-data.js", "");
+  await fsproms.writeFile(process.cwd() + "/output/mgrs.js", "");
 
   // open write streams
   const streetNamesStream = fs.createWriteStream(
-    process.cwd() + "/output/street-names.json"
+    process.cwd() + "/output/street-names.js"
   );
 
   const streetIndexStream = fs.createWriteStream(
-    process.cwd() + "/output/streets-index.json"
+    process.cwd() + "/output/streets-index.js"
   );
 
   const streetDataStream = fs.createWriteStream(
-    process.cwd() + "/output/street-data.json"
+    process.cwd() + "/output/street-data.js"
   );
 
-  streetNamesStream.write(`[\n`);
-  streetIndexStream.write(`{\n`);
-  streetDataStream.write(`[\n`);
+  streetNamesStream.write(`module.exports = [\n`);
+  streetIndexStream.write(`module.exports = {\n`);
+  streetDataStream.write(`module.exports = [\n`);
 
   const query = new QueryStream("select * from data order by name");
   client.query(query);
@@ -250,7 +250,7 @@ async function writeOut() {
   streetIndexStream.write(`\n}`);
   streetDataStream.write(`\n]`);
 
-  const mgrsStream = fs.createWriteStream(process.cwd() + "/output/mgrs.json");
+  const mgrsStream = fs.createWriteStream(process.cwd() + "/output/mgrs.js");
   // May need to stream this somehow
   mgrsStream.write(JSON.stringify(mgrsData));
   mgrsStream.end();
