@@ -88,21 +88,17 @@ async function writeOut() {
           let isFirst = false
 
           if (!isFirst) {
-            streetDataStream.write(`${i === 0 ? "" : ","}"${streetNumKeys[i]}":{`);
+            streetDataStream.write(`${i === 0 ? "" : ","}"${streetNumKeys[i]}":`);
           }
 
           if (streetData[streetNumKeys[i]][zipIndex] && streetData[streetNumKeys[i]][zipIndex].length > 0) {
             // write out units
-            streetDataStream.write(`"${zipIndex}":${JSON.stringify(streetData[streetNumKeys[i]][zipIndex])}`);
+            streetDataStream.write(`{"${zipIndex}":${JSON.stringify(streetData[streetNumKeys[i]][zipIndex])}}`);
           } else {
             // write out zip index only
             streetDataStream.write(
               `"${zipIndex}"`
             );
-          }
-
-          if (j === zipIndexKeys.length - 1) {
-            streetDataStream.write(`}`);
           }
 
           isFirst = true
@@ -133,6 +129,7 @@ async function writeOut() {
     // Add units
     if (street.unit) {
       // split unit type from unit number
+      street.unit.trim()
       const split = street.unit.split(" ");
       let type = "";
       let num = "";
@@ -158,6 +155,7 @@ async function writeOut() {
         const checkType = streetData[street.number][street.zip_index][k][0];
 
         if (
+          num &&
           checkType &&
           checkType === type &&
           streetData[street.number][street.zip_index][k][1].indexOf(num) < 0
@@ -168,7 +166,7 @@ async function writeOut() {
         }
       }
 
-      if (!addedToTypeArr) {
+      if (!addedToTypeArr && num) {
         streetData[street.number][street.zip_index].push([type, []]);
 
         streetData[street.number][street.zip_index][
