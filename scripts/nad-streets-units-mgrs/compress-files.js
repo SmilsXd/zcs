@@ -17,7 +17,7 @@ async function compressThemAll() {
   // remove old compressed files
   try {
     unlinkSync(process.cwd() + "/output/compressed/mgrs.js.gz");
-    unlinkSync(process.cwd() + "/output/compressed/street-data.js.gz");
+    unlinkSync(process.cwd() + "/output/compressed/street-data.json.gz");
     unlinkSync(process.cwd() + "/output/compressed/street-names.js.gz");
     unlinkSync(process.cwd() + "/output/compressed/streets-index.js.gz");
   } catch {
@@ -32,8 +32,8 @@ async function compressThemAll() {
 
   // Street data
   await compress(
-    process.cwd() + "/output/street-data.js",
-    process.cwd() + "/output/compressed/street-data.js.gz"
+    process.cwd() + "/output/street-data.json",
+    process.cwd() + "/output/compressed/street-data.json.gz"
   );
 
   // Street names

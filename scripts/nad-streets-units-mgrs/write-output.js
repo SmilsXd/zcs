@@ -38,7 +38,7 @@ async function writeOut() {
   // remove data from any previous runs
   await fsproms.writeFile(process.cwd() + "/output/street-names.js", "");
   await fsproms.writeFile(process.cwd() + "/output/streets-index.js", "");
-  await fsproms.writeFile(process.cwd() + "/output/street-data.js", "");
+  await fsproms.writeFile(process.cwd() + "/output/street-data.json", "");
   await fsproms.writeFile(process.cwd() + "/output/mgrs.js", "");
 
   // open write streams
@@ -51,12 +51,12 @@ async function writeOut() {
   );
 
   const streetDataStream = fs.createWriteStream(
-    process.cwd() + "/output/street-data.js"
+    process.cwd() + "/output/street-data.json"
   );
 
   streetNamesStream.write(`module.exports = [\n`);
   streetIndexStream.write(`module.exports = {\n`);
-  streetDataStream.write(`module.exports = [\n`);
+  streetDataStream.write(`[\n`);
 
   const query = new QueryStream("select * from data order by name");
   client.query(query);
@@ -83,25 +83,16 @@ async function writeOut() {
       for (i = 0; i < streetNumKeys.length; i++) {
         const zipIndexKeys = Object.keys(streetData[streetNumKeys[i]]);
 
+        streetDataStream.write(`${i === 0 ? '' : ','}"${streetNumKeys[i]}":`);
+
         for (j = 0; j < zipIndexKeys.length; j++) {
           const zipIndex = zipIndexKeys[j]
-          let isFirst = false
 
-          if (!isFirst) {
-            streetDataStream.write(`${i === 0 ? "" : ","}"${streetNumKeys[i]}":`);
+          if (j > 0) {
+            streetDataStream.write(`,`);
           }
 
-          if (streetData[streetNumKeys[i]][zipIndex] && streetData[streetNumKeys[i]][zipIndex].length > 0) {
-            // write out units
-            streetDataStream.write(`{"${zipIndex}":${JSON.stringify(streetData[streetNumKeys[i]][zipIndex])}}`);
-          } else {
-            // write out zip index only
-            streetDataStream.write(
-              `"${zipIndex}"`
-            );
-          }
-
-          isFirst = true
+          streetDataStream.write(`{"${zipIndex}":${JSON.stringify(streetData[streetNumKeys[i]][zipIndex])}}`);
         }
       }
 
