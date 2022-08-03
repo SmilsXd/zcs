@@ -20,16 +20,16 @@ let elapsedTime = function () {
 const stats = {
   records: 0,
   uniqueNames: 0,
+  highestZipCount: 0,
+  highestStreetNumCount: 0
 };
 
 function displayStats() {
   const heapUsed = process.memoryUsage().heapUsed / 1024 / 1024;
 
   process.stdout.write(
-    `\rProcessed ${stats.records} records. Unique names: ${
-      stats.uniqueNames
-    } Elapsed: ${elapsedTime()}. Heap used: ${
-      Math.round(heapUsed * 100) / 100
+    `\rProcessed ${stats.records} records. Unique names: ${stats.uniqueNames
+    }. Highest zip count: ${stats.highestZipCount}. Highest street num count: ${stats.highestStreetNumCount}. Elapsed: ${elapsedTime()}. Heap used: ${Math.round(heapUsed * 100) / 100
     }MB`
   );
 }
@@ -40,9 +40,11 @@ async function writeOut() {
   // remove data from any previous runs
   await fsproms.writeFile(process.cwd() + "/output/street-names.js", "");
   await fsproms.writeFile(process.cwd() + "/output/streets-index.js", "");
-  await fsproms.writeFile(process.cwd() + "/output/street-data.js", "");
   await fsproms.writeFile(process.cwd() + "/output/mgrs.js", "");
   await fsproms.writeFile(process.cwd() + "/output/stats.csv", "");
+  await fsproms.rmdir(process.cwd() + "/output/street-data", { recursive: true });
+  await fsproms.mkdir(process.cwd() + "/output/street-data");
+
 
   // open write streams
   const streetNamesStream = fs.createWriteStream(
@@ -54,82 +56,95 @@ async function writeOut() {
   );
 
   const streetDataStream = {
-    a: fs.createWriteStream(process.cwd() + "/output/street-data/a.js"),
-    b: fs.createWriteStream(process.cwd() + "/output/street-data/b.js"),
-    c: fs.createWriteStream(process.cwd() + "/output/street-data/c.js"),
-    d: fs.createWriteStream(process.cwd() + "/output/street-data/d.js"),
-    e: fs.createWriteStream(process.cwd() + "/output/street-data/e.js"),
-    f: fs.createWriteStream(process.cwd() + "/output/street-data/f.js"),
-    g: fs.createWriteStream(process.cwd() + "/output/street-data/g.js"),
-    h: fs.createWriteStream(process.cwd() + "/output/street-data/h.js"),
-    i: fs.createWriteStream(process.cwd() + "/output/street-data/i.js"),
-    j: fs.createWriteStream(process.cwd() + "/output/street-data/j.js"),
-    k: fs.createWriteStream(process.cwd() + "/output/street-data/k.js"),
-    l: fs.createWriteStream(process.cwd() + "/output/street-data/l.js"),
-    m: fs.createWriteStream(process.cwd() + "/output/street-data/m.js"),
-    n: fs.createWriteStream(process.cwd() + "/output/street-data/n.js"),
-    o: fs.createWriteStream(process.cwd() + "/output/street-data/o.js"),
-    p: fs.createWriteStream(process.cwd() + "/output/street-data/p.js"),
-    q: fs.createWriteStream(process.cwd() + "/output/street-data/q.js"),
-    r: fs.createWriteStream(process.cwd() + "/output/street-data/r.js"),
-    s: fs.createWriteStream(process.cwd() + "/output/street-data/s.js"),
-    t: fs.createWriteStream(process.cwd() + "/output/street-data/t.js"),
-    u: fs.createWriteStream(process.cwd() + "/output/street-data/u.js"),
-    v: fs.createWriteStream(process.cwd() + "/output/street-data/v.js"),
-    w: fs.createWriteStream(process.cwd() + "/output/street-data/w.js"),
-    x: fs.createWriteStream(process.cwd() + "/output/street-data/x.js"),
-    y: fs.createWriteStream(process.cwd() + "/output/street-data/y.js"),
-    z: fs.createWriteStream(process.cwd() + "/output/street-data/z.js"),
+    A: fs.createWriteStream(process.cwd() + "/output/street-data/A.js"),
+    B: fs.createWriteStream(process.cwd() + "/output/street-data/B.js"),
+    C: fs.createWriteStream(process.cwd() + "/output/street-data/C.js"),
+    D: fs.createWriteStream(process.cwd() + "/output/street-data/D.js"),
+    E: fs.createWriteStream(process.cwd() + "/output/street-data/E.js"),
+    F: fs.createWriteStream(process.cwd() + "/output/street-data/F.js"),
+    G: fs.createWriteStream(process.cwd() + "/output/street-data/G.js"),
+    H: fs.createWriteStream(process.cwd() + "/output/street-data/H.js"),
+    I: fs.createWriteStream(process.cwd() + "/output/street-data/I.js"),
+    J: fs.createWriteStream(process.cwd() + "/output/street-data/J.js"),
+    K: fs.createWriteStream(process.cwd() + "/output/street-data/K.js"),
+    L: fs.createWriteStream(process.cwd() + "/output/street-data/L.js"),
+    M: fs.createWriteStream(process.cwd() + "/output/street-data/M.js"),
+    N: fs.createWriteStream(process.cwd() + "/output/street-data/N.js"),
+    O: fs.createWriteStream(process.cwd() + "/output/street-data/O.js"),
+    P: fs.createWriteStream(process.cwd() + "/output/street-data/P.js"),
+    Q: fs.createWriteStream(process.cwd() + "/output/street-data/Q.js"),
+    R: fs.createWriteStream(process.cwd() + "/output/street-data/R.js"),
+    S: fs.createWriteStream(process.cwd() + "/output/street-data/S.js"),
+    T: fs.createWriteStream(process.cwd() + "/output/street-data/T.js"),
+    U: fs.createWriteStream(process.cwd() + "/output/street-data/U.js"),
+    V: fs.createWriteStream(process.cwd() + "/output/street-data/V.js"),
+    W: fs.createWriteStream(process.cwd() + "/output/street-data/W.js"),
+    X: fs.createWriteStream(process.cwd() + "/output/street-data/X.js"),
+    Y: fs.createWriteStream(process.cwd() + "/output/street-data/Y.js"),
+    Z: fs.createWriteStream(process.cwd() + "/output/street-data/Z.js"),
+    OTHER: fs.createWriteStream(process.cwd() + "/output/street-data/OTHER.js"),
   };
 
   const statsStream = fs.createWriteStream(process.cwd() + "/output/stats.csv");
-
-  streetNamesStream.write(`module.exports = [\n`);
-  streetIndexStream.write(`module.exports = {\n`);
-  streetDataStream.write(`module.exports = [\n`);
 
   const query = new QueryStream("select * from data order by name");
   client.query(query);
 
   let count = 0;
   let index = {
-    a: 0,
-    b: 0,
-    c: 0,
-    d: 0,
-    e: 0,
-    f: 0,
-    g: 0,
-    h: 0,
-    i: 0,
-    j: 0,
-    k: 0,
-    l: 0,
-    m: 0,
-    n: 0,
-    o: 0,
-    p: 0,
-    q: 0,
-    r: 0,
-    s: 0,
-    t: 0,
-    u: 0,
-    v: 0,
-    w: 0,
-    x: 0,
-    y: 0,
-    z: 0,
+    A: 0,
+    B: 0,
+    C: 0,
+    D: 0,
+    E: 0,
+    F: 0,
+    G: 0,
+    H: 0,
+    I: 0,
+    J: 0,
+    K: 0,
+    L: 0,
+    M: 0,
+    N: 0,
+    O: 0,
+    P: 0,
+    Q: 0,
+    R: 0,
+    S: 0,
+    T: 0,
+    U: 0,
+    V: 0,
+    W: 0,
+    X: 0,
+    Y: 0,
+    Z: 0,
+    OTHER: 0,
   };
 
   let streetName = "";
   let streetData = {};
   let mgrsData = {};
 
+  // Write beginning of files
+  streetNamesStream.write(`module.exports = [\n`);
+  streetIndexStream.write(`module.exports = {\n`);
+  statsStream.write('street name, street numbers count, highest zip count\n')
+
+  const letters = Object.keys(index)
+  for (let i = 0; i < letters.length; i++) {
+    streetDataStream[letters[i]].write(`module.exports = [\n`);
+  }
+
+  let letter = 'OTHER';
+
   for await (const street of query) {
     if (count === 0) streetName = street.name;
 
     if (street.name !== streetName) {
-      const letter = streetName[0];
+      let letter = streetName[0];
+      if (index[letter] === undefined) {
+        letter = 'OTHER'
+      }
 
       streetDataStream[letter].write(
         `${index[letter] === 0 ? "" : ",\n"}${JSON.stringify(streetData)}`
@@ -137,12 +152,12 @@ async function writeOut() {
 
       // Write unique street names to file
       streetNamesStream.write(
-        `${index[letter] === 0 ? "" : ",\n"}"${streetName}"`
+        `${stats.uniqueNames === 0 ? "" : ",\n"}"${streetName}"`
       );
 
       // write street indexes to file
       streetIndexStream.write(
-        `${index[letter] === 0 ? "" : ",\n"}"${streetName}":${Number.parseInt(
+        `${stats.uniqueNames === 0 ? "" : ",\n"}"${streetName}":${Number.parseInt(
           index[letter]
         )}`
       );
@@ -161,8 +176,12 @@ async function writeOut() {
         `${streetName},${streetNums.length},${highestZipCount}\n`
       );
 
+      if (highestZipCount > stats.highestZipCount) stats.highestZipCount = highestZipCount
+      if (streetNums.length > stats.highestStreetNumCount) stats.highestStreetNumCount = streetNums.length
+
       // Reset
       index[letter]++;
+      stats.uniqueNames++
       streetName = street.name;
       streetData = {};
     }
@@ -229,13 +248,16 @@ async function writeOut() {
     // Display current stats
     if (count % LOG_INTERVAL === 0) {
       stats.records = count;
-      stats.uniqueNames = index + 1;
       displayStats();
     }
   }
 
+  stats.records = count;
+  displayStats();
+  client.end();
+
   // Write street data to file one last time
-  streetDataStream.write(`${JSON.stringify(streetData)}\n`);
+  streetDataStream[letter].write(`${JSON.stringify(streetData)}\n`);
 
   // Write unique street names to file
   streetNamesStream.write(`${index === 0 ? "" : ","}"${streetName}"`);
@@ -246,8 +268,15 @@ async function writeOut() {
   );
 
   streetNamesStream.write(`\n]`);
+  streetNamesStream.end();
+
   streetIndexStream.write(`\n}`);
-  streetDataStream.write(`]`);
+  streetIndexStream.end();
+
+  for (let i = 0; i < letters.length; i++) {
+    streetDataStream[letters[i]].write(`]`);
+    streetDataStream[letters[i]].end();
+  }
 
   // Write MGRS data
   const mgrsStream = fs.createWriteStream(process.cwd() + "/output/mgrs.js");
@@ -286,12 +315,6 @@ async function writeOut() {
   }
   mgrsStream.write(`}`);
   mgrsStream.end();
-
-  streetNamesStream.end();
-  streetIndexStream.end();
-  streetDataStream.end();
-
-  client.end();
 
   console.log("\n\ndone.");
 }

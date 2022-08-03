@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "transform": "node transform-csv.js",
-    "write": "node write-output.js"
+    "write": "node write-output.js",
+    "write-letters": "node write-output-letters.js"
   },
   "author": "",
   "license": "ISC",
