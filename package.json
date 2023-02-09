@@ -30,7 +30,5 @@
   },
   "homepage": "https://github.com/Phara0h/zcs#readme",
   "dependencies": {
-    "leveldown": "^6.1.1",
-    "levelup": "^5.1.1"
   }
 }
