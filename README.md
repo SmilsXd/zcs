@@ -26,6 +26,10 @@ npm install zcs
     console.log(zipLookAhead('038'), 10) 
     console.log(cityLookAhead('orlan'), 5)
     console.log(stateLookAhead('N'),10)
+    console.log(validState("FL"));
+    console.log(validState("FLA"));
+    console.log(validCity("Orlando"));
+    console.log(validCity("OrlandFAS"));
 ```
 
 
