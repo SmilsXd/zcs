@@ -1,7 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 
 const { state_names } = require("./data/states/names.js");
-const { state_index } = require("./data/states/index.js");
+const { state_indexes } = require("./data/states/index.js");
 const { state_data } = require("./data/states/data.js");
 
 const { zip_indexes } = require("./data/zips/index.js");
@@ -17,6 +17,19 @@ var street_data, street_names, street_index;
 
 //optional location
 var mgrs_data, street_mgrs_data;
+
+
+function validZip(zip) {
+  return zip_indexes[zip] != undefined;
+}
+
+function validState(state) {
+  return state_indexes[state.toUpperCase()] != undefined;
+}
+
+function validCity(city) {
+  return city_indexes[city.toUpperCase()] != undefined;
+}
 
 function getByStateCity(state, city) {
   state = state.toUpperCase();
@@ -45,12 +58,16 @@ function getByStateCity(state, city) {
   return zipsn;
 }
 function getByZip(zip) {
-  var t = zip_data[zip_indexes[zip]];
+  try {
+    var t = zip_data[zip_indexes[zip]];
 
-  return {
-    state: state_names[t[0]],
-    city: city_names[t[1]],
-  };
+    return {
+      state: state_names[t[0]],
+      city: city_names[t[1]],
+    };
+  } catch (error) {
+    throw new Error("Zip Code Not Found");
+  }
 }
 function getByCityState(city, state) {
   city = city.toUpperCase();
@@ -217,6 +234,9 @@ exports.zcs = (opts) => {
     zipLookAhead,
     stateLookAhead,
     cityLookAhead,
+    validZip,
+    validState,
+    validCity
   };
 
   if (opts && opts.street && opts.street.enabled) {
