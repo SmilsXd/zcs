@@ -31,7 +31,7 @@ async function myFunc() {
   console.log(validState("FLA"));
   console.log(validCity("Orlando"));
   console.log(validCity("OrlandFAS"));
-  
+  console.log(getByZip("03809"));
   // console.log(await getStreetNumbersByName("ORANGE STREET"));
   // console.log(await getZipsByStreetName("DUDLEY ROAD"));
   // console.log(streetLookAhead("DUDL"));
