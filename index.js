@@ -32,30 +32,35 @@ function validCity(city) {
 }
 
 function getByStateCity(state, city) {
-  state = state.toUpperCase();
-  if (!city) {
-    var t = state_data[state_names.indexOf(state)];
-    const keys = Object.keys(t);
-    var tt = {};
-    for (let i = 0; i < keys.length; i++) {
-      const city = city_names[keys[i]];
-      const _zips = t[keys[i]];
-      var zipsn = [];
-      for (let j = 0; j < _zips.length; j++) {
-        zipsn.push(zips[_zips[j]]);
+  try {
+    state = state.toUpperCase();
+    if (!city) {
+      var t = state_data[state_names.indexOf(state)];
+      const keys = Object.keys(t);
+      var tt = {};
+      for (let i = 0; i < keys.length; i++) {
+        const city = city_names[keys[i]];
+        const _zips = t[keys[i]];
+        var zipsn = [];
+        for (let j = 0; j < _zips.length; j++) {
+          zipsn.push(zips[_zips[j]]);
+        }
+        tt[city] = zipsn;
       }
-      tt[city] = zipsn;
+      return tt;
     }
-    return tt;
+    city = city.toUpperCase();
+    const _zips =
+      state_data[state_names.indexOf(state)][city_names.indexOf(city)];
+    var zipsn = [];
+    for (let j = 0; j < _zips.length; j++) {
+      zipsn.push(zips[_zips[j]]);
+    }
+    return zipsn;
+  } catch (error) {
+    throw new Error("State or City Not Found");
   }
-  city = city.toUpperCase();
-  const _zips =
-    state_data[state_names.indexOf(state)][city_names.indexOf(city)];
-  var zipsn = [];
-  for (let j = 0; j < _zips.length; j++) {
-    zipsn.push(zips[_zips[j]]);
-  }
-  return zipsn;
+ 
 }
 function getByZip(zip) {
   try {
@@ -70,6 +75,7 @@ function getByZip(zip) {
   }
 }
 function getByCityState(city, state) {
+  try {
   city = city.toUpperCase();
 
   if (!state) {
@@ -84,6 +90,9 @@ function getByCityState(city, state) {
   }
   state = state.toUpperCase();
   return getByStateCity(state, city);
+  } catch (error) {
+    throw new Error("City or State Not Found");
+  }
 }
 
 function zipLookAhead(zip, ammount = 10) {
