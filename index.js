@@ -31,6 +31,24 @@ function validCity(city) {
   return city_indexes[city.toUpperCase()] != undefined;
 }
 
+
+function getCitiesNameByState(state) {
+  try {
+    state = state.toUpperCase();
+   
+      var t = state_data[state_names.indexOf(state)];
+      const keys = Object.keys(t);
+      var tt = [];
+      for (let i = 0; i < keys.length; i++) {
+        tt.push(city_names[keys[i]]);
+      }
+      return tt;
+  } catch (error) {
+    throw new Error("State or City Not Found");
+  }
+ 
+}
+
 function getByStateCity(state, city) {
   try {
     state = state.toUpperCase();
@@ -62,6 +80,7 @@ function getByStateCity(state, city) {
   }
  
 }
+
 function getByZip(zip) {
   try {
     var t = zip_data[zip_indexes[zip]];
@@ -245,7 +264,8 @@ exports.zcs = (opts) => {
     cityLookAhead,
     validZip,
     validState,
-    validCity
+    validCity,
+    getCitiesNameByState
   };
 
   if (opts && opts.street && opts.street.enabled) {

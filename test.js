@@ -12,7 +12,8 @@ const {
   getZipsByStreetName,
   streetLookAhead,
   streetNumberLookAhead,
-  getStreetLocation
+  getStreetLocation,
+  getCitiesNameByState
 } = (require("./index.js")).zcs({
   //street: { enabled: true, location: process.cwd() + "/../zcs-streets/index.js" },
   //geo: { enabled: true, location: process.cwd() + "/../zcs-location/index.js" },
@@ -21,6 +22,7 @@ const {
 async function myFunc() {
   console.log(getByCityState("Orlando"));
   console.log(getByStateCity("FL"));
+  console.log(getCitiesNameByState("FL"));
   console.log(getByZip("03809"));
   console.log(zipLookAhead("038"));
   console.log(cityLookAhead("Orland"));
