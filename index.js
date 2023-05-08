@@ -11,6 +11,7 @@ const { zips } = require("./data/zips/zips.js");
 const { city_names } = require("./data/cities/names.js");
 const { city_indexes } = require("./data/cities/index.js");
 const { city_data } = require("./data/cities/data.js");
+const { city_population } = require("./data/cities/population.js");
 
 //optional street
 var street_data, street_names, street_index;
@@ -31,6 +32,39 @@ function validCity(city) {
   return city_indexes[city.toUpperCase()] != undefined;
 }
 
+
+function getCitiesNameAndPopulationByState(state) {
+  try {
+    state = state.toUpperCase();
+   
+      var t = state_data[state_names.indexOf(state)];
+      const keys = Object.keys(t);
+      var tt = [];
+      for (let i = 0; i < keys.length; i++) {
+        const _zips = t[keys[i]];
+        var zipsn = [];
+        var city = {
+          name: city_names[keys[i]],
+          population: 0
+        }
+        for (let j = 0; j < _zips.length; j++) {
+
+          if(city_names[zip_data[_zips[j]][1]] === city.name) {
+          
+            city.population = city_population[_zips[j]] || 0
+          } else {
+            console.log(city.name,city_population[_zips[j]],zips[_zips[j]])
+          }
+       
+        }
+
+        tt.push(city);
+      }
+      return tt.sort((a,b)=>b.population-a.population);
+  } catch (error) {
+    throw new Error("State or City Not Found");
+  }
+}
 
 function getCitiesNameByState(state) {
   try {
@@ -265,7 +299,8 @@ exports.zcs = (opts) => {
     validZip,
     validState,
     validCity,
-    getCitiesNameByState
+    getCitiesNameByState,
+    getCitiesNameAndPopulationByState
   };
 
   if (opts && opts.street && opts.street.enabled) {

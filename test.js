@@ -8,12 +8,13 @@ const {
   validCity,
   validState,
   validZip,
+  getCitiesNameByState,
+  getCitiesNameAndPopulationByState,
   getStreetNumbersByName,
   getZipsByStreetName,
   streetLookAhead,
   streetNumberLookAhead,
-  getStreetLocation,
-  getCitiesNameByState
+  getStreetLocation
 } = (require("./index.js")).zcs({
   //street: { enabled: true, location: process.cwd() + "/../zcs-streets/index.js" },
   //geo: { enabled: true, location: process.cwd() + "/../zcs-location/index.js" },
@@ -23,10 +24,12 @@ async function myFunc() {
   console.log(getByCityState("Orlando"));
   console.log(getByStateCity("FL"));
   console.log(getCitiesNameByState("FL"));
+  console.log(getCitiesNameAndPopulationByState("FL"));
   console.log(getByZip("03809"));
   console.log(zipLookAhead("038"));
   console.log(cityLookAhead("Orland"));
   console.log(stateLookAhead("N"));
+  console.log(getByCityState("Bow", "NH"));
   console.log(validZip("03809"));
   console.log(validZip("038309"));
   console.log(validState("FL"));

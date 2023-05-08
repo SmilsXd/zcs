@@ -13,7 +13,19 @@ npm install zcs
 
 ```js
 
-    const { getByStateCity, getByCityState, getByZip, zipLookAhead, cityLookAhead, stateLookAhead } = require('zcs')
+    const {  
+    getByStateCity,
+    getByCityState,
+    getByZip,
+    zipLookAhead,
+    cityLookAhead,
+    stateLookAhead,
+    validCity,
+    validState,
+    validZip,
+    getCitiesNameByState,
+    getCitiesNameAndPopulationByState 
+  } = require('zcs')
      // optional state as second param
     console.log(getByCityState('Orlando'))
 
@@ -26,18 +38,33 @@ npm install zcs
     console.log(zipLookAhead('038'), 10) 
     console.log(cityLookAhead('orlan'), 5)
     console.log(stateLookAhead('N'),10)
+    
     console.log(validState("FL"));
     console.log(validState("FLA"));
     console.log(validCity("Orlando"));
     console.log(validCity("OrlandFAS"));
-```
 
+    console.log(getCitiesNameByState("FL"));
+    console.log(getCitiesNameAndPopulationByState("FL"));
+```
 
 ### Web Usage
 
 
 ```js
- import { getByStateCity, getByCityState, getByZip, zipLookAhead, cityLookAhead, stateLookAhead} from 'zcs'
+ import {   
+    getByStateCity,
+    getByCityState,
+    getByZip,
+    zipLookAhead,
+    cityLookAhead,
+    stateLookAhead,
+    validCity,
+    validState,
+    validZip,
+    getCitiesNameByState,
+    getCitiesNameAndPopulationByState
+  } from 'zcs'
 
      // optional state as second param
     console.log(getByCityState('Orlando'))
@@ -51,4 +78,12 @@ npm install zcs
     console.log(zipLookAhead('038'), 10) 
     console.log(cityLookAhead('orlan'), 5)
     console.log(stateLookAhead('N'),10)
+
+        console.log(validState("FL"));
+    console.log(validState("FLA"));
+    console.log(validCity("Orlando"));
+    console.log(validCity("OrlandFAS"));
+
+    console.log(getCitiesNameByState("FL"));
+    console.log(getCitiesNameAndPopulationByState("FL"));
 ```
