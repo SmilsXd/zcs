@@ -176,6 +176,32 @@ function _search(arr, thing, ammount, skip = 0) {
 
 // Optional Street Functions
 
+
+
+/**
+ * Get all street numbers by street name and zip code
+ * @param {*} streetName - street name
+ * @param {*} zip - zip code
+ * @returns 
+ */
+async function getStreetNumbersByNameAndZip(streetName,zip) {
+  const streetIndex = street_index[streetName.toUpperCase()];
+  var zipindex = zip_indexes[zip];
+  var t =  JSON.parse((await street_data.get(streetIndex)).toString());
+  var numbers = Object.keys(t);
+  var n = [];
+  for(var i = 0; i < numbers.length; i++) {
+    var zips = t[numbers[i]];
+    for(var j = 0; j < zips.length; j++) {
+      if(zips[j] === zipindex) {
+        n.push(numbers[i])
+        break;
+      }
+    }
+  }
+  return n;
+}
+
 /**
  * Get all street numbers by street name
  * @param {*} streetName - street name
@@ -183,7 +209,6 @@ function _search(arr, thing, ammount, skip = 0) {
  */
 async function getStreetNumbersByName(streetName) {
   const streetIndex = street_index[streetName.toUpperCase()];
-  console.log(streetIndex, streetName);
   return Object.keys(
     JSON.parse((await street_data.get(streetIndex)).toString())
   );
@@ -235,7 +260,7 @@ function streetLookAhead(street, ammount = 10) {
  * @param {*} opts = state, city, skip, full_number_provided
  * @returns 
  */
-async function streetNumberLookAhead(number, street, ammount = 10, opts) {
+async function streetNumberLookAhead(number, street, ammount = 10, opts = {}) {
 
 opts.skip = opts.skip || 0;
 opts.lookaheads = opts.lookaheads || [];
@@ -524,6 +549,7 @@ exports.zcs = (opts) => {
     validCity,
     getCitiesNameByState,
     getCitiesNameAndPopulationByState
+    
   };
 
   if (opts && opts.street && opts.street.enabled) {
@@ -534,6 +560,7 @@ exports.zcs = (opts) => {
     street_index = zcs_street.street_index;
 
     functions.getStreetNumbersByName = getStreetNumbersByName;
+    functions.getStreetNumbersByNameAndZip = getStreetNumbersByNameAndZip;
     functions.getZipsByStreetName = getZipsByStreetName;
     functions.streetLookAhead = streetLookAhead;
     functions.streetNumberLookAhead = streetNumberLookAhead;
