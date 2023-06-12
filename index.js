@@ -12,12 +12,12 @@ const { city_names } = require("./data/cities/names.js");
 const { city_indexes } = require("./data/cities/index.js");
 const { city_data } = require("./data/cities/data.js");
 const { city_population } = require("./data/cities/population.js");
-
+const { roads } = require("./data/utils/roads.js");
 //optional street
 var street_data, street_names, street_index;
 
 //optional location
-var mgrs_data, street_mgrs_data;
+var mgrs_data, street_mgrs_data, util_mgrs;
 
 
 function validZip(zip) {
@@ -127,6 +127,7 @@ function getByZip(zip) {
     throw new Error("Zip Code Not Found");
   }
 }
+
 function getByCityState(city, state) {
   try {
   city = city.toUpperCase();
@@ -166,7 +167,7 @@ function _search(arr, thing, ammount, skip = 0) {
     if (arr[i].startsWith(thing) && --skip <= 0) {
       t.push(arr[i]);
     }
-    if (t.length >= ammount) {
+    if (ammount && t.length >= ammount) {
       break;
     }
   }
@@ -175,6 +176,11 @@ function _search(arr, thing, ammount, skip = 0) {
 
 // Optional Street Functions
 
+/**
+ * Get all street numbers by street name
+ * @param {*} streetName - street name
+ * @returns 
+ */
 async function getStreetNumbersByName(streetName) {
   const streetIndex = street_index[streetName.toUpperCase()];
   console.log(streetIndex, streetName);
@@ -183,10 +189,16 @@ async function getStreetNumbersByName(streetName) {
   );
 }
 
+/**
+ * Get all zip codes by street name
+ * @param {*} streetName - street name 
+ * @returns 
+ */
 async function getZipsByStreetName(streetName) {
   const t = JSON.parse(
     (await street_data.get(street_index[streetName.toUpperCase()])).toString()
   );
+  console.log(t)
   const keys = Object.keys(t);
 
   var zipsn = [];
@@ -203,92 +215,303 @@ async function getZipsByStreetName(streetName) {
     }
   }
 
-  return zipsn;
+  return zipsn.sort((a,b)=>a-b);
 }
 
+/**
+ * Look ahead for street names
+ * @param {*} street - street name
+ * @param {*} ammount - ammount of lookaheads
+ */
 function streetLookAhead(street, ammount = 10) {
   return _search(street_names, street.toUpperCase(), ammount);
 }
 
-async function streetNumberLookAhead(number, street, ammount = 10, state = null, city = null, skip = 0, lookaheads=[]) {
+/**
+ *  Look ahead for street numbers
+ * @param {*} number - street number
+ * @param {*} street - street name
+ * @param {*} ammount - ammount of lookaheads
+ * @param {*} opts = state, city, skip, full_number_provided
+ * @returns 
+ */
+async function streetNumberLookAhead(number, street, ammount = 10, opts) {
 
-  var streets = _search(street_names, street.toUpperCase(), ammount*2, skip);
+opts.skip = opts.skip || 0;
+opts.lookaheads = opts.lookaheads || [];
+
+  var streets = _search(street_names, street.toUpperCase(), ammount*2, opts.skip );
+
   if(streets.length <= 0) {
-    return lookaheads;
+    return opts.lookaheads;
   }
- // console.log(streets)
-  for(var i = 0; i < streets.length; i++){
-    var t = JSON.parse((await street_data.get(street_index[streets[i]])).toString());
-    //console.log(t)
-    var keys =_search( Object.keys(t), number, ammount*2);
-    //console.log(keys)
-    for(var j = 0; j < keys.length; j++) {
-      var streetNumber = keys[j]
-      var szips = t[keys[j]];
-      var nstreet = null;
-      for(var k = 0; k < szips.length; k++) {
-        var statecity = getByZip(zips[szips[k]])
-        if(lookaheads.length >= ammount) {
+
+  for(var i = 0; i < streets.length; i++) {
+    try {
+      var t = JSON.parse((await street_data.get(street_index[streets[i]])).toString());
+      var keys = null;
+      if(opts.full_number_provided) {
+        keys = t[`${number}`] ? [`${number}`] : [];
+      } else {
+        keys = _search( Object.keys(t), number);
+      }
+
+      for(var j = 0; j < keys.length; j++) {
+        var streetNumber = keys[j]
+        var szips = t[keys[j]];
+        var nstreet = null;
+        for(var k = 0; k < szips.length; k++) {
+          var statecity = getByZip(zips[szips[k]])
+          if(opts.lookaheads.length >= ammount) {
+            break;
+          }
+
+          if((!opts.state || opts.state === statecity.state) && (!opts.city || opts.city === statecity.city) && (!opts.full_number_provided || (opts.full_number_provided && Number(streetNumber) === number)) ){
+            nstreet = {
+              full_address: `${streetNumber} ${streets[i]} ${statecity.city}, ${statecity.state} ${zips[szips[k]]}`,
+              number: streetNumber,
+              street: streets[i],
+              city: statecity.city,
+              state: statecity.state,
+              zip: zips[szips[k]],
+              street_index: street_index[streets[i]]
+            } 
+            opts.lookaheads.push(nstreet);
+          }
+        }
+        if(nstreet && opts.lookaheads.length >= ammount) {
           break;
-         }
-        if((!state || state === statecity.state) && (!city || city === statecity.city) ){
-          nstreet = {
-            number: streetNumber,
-            street: streets[i],
-            city: statecity.city,
-            state: statecity.state,
-            zip: zips[szips[k]],
-            street_index: street_index[streets[i]]
-          } 
-          lookaheads.push(nstreet);
         }
       }
-      if(nstreet && lookaheads.length >= ammount) {
-        break;
-      }
-    }
+    } catch (error) { }
   }
-
-  return lookaheads.length >= ammount ? lookaheads : streetNumberLookAhead(number,street,ammount,state,city,skip+(ammount*2),lookaheads);
+  opts.skip = opts.skip+(ammount*2);
+  return opts.lookaheads.length >= ammount ? opts.lookaheads.sort((a,b)=>a.street.length-b.street.length) : streetNumberLookAhead(number,street,ammount,opts);
 }
 
 // Optional Street Location Functions
 
-async function getStreetLocation(number, street, zip) {
-  var t = 
-    (await street_mgrs_data.get(`${street_index[street.toUpperCase()]}:${zip_indexes[zip]}:${number}`)).toString()
- 
-  console.log(t);
-  // var keys = Object.keys(t);
-  // for (let i = 0; i < keys.length; i++) {
-  //   if (keys[i] == number) {
-  //     var szips = t[keys[i]];
-  //     for (var j = 0; j < szips.length; j++) {
-  //       var statecity = getByZip(zips[szips[j]]);
-  //       if (statecity.state == state && statecity.city == city) {
-  //         return {
-  //           number: number,
-  //           street: street,
-  //           city: statecity.city,
-  //           state: statecity.state,
-  //           zip: zips[szips[j]],
-  //           street_index: street_index[street],
-  //         };
-  //       }
-  //     }
-  //   }
-  // }
+/**
+ *  Gets the street location in MGRS by number, street, and zip
+ * @param {*} number - Street number
+ * @param {*} street - Street name
+ * @param {*} zip - Zip code
+ * @param {*} searchNearist - (Default True) If the street number is not found, search for the nearest street number
+ * @returns 
+ */
+async function getLocationByStreet(street, zip, searchNearist = true) {
+  var t;
+  street = street.toUpperCase().split(' ');
+  var number = street.shift();
+  street = street.join(' ');
+  
+  try {
+    t = (await street_mgrs_data.get(`${street_index[street.toUpperCase()]}:${zip_indexes[zip]}:${number}`))
+  } catch (error) {
+    var temp = street.split(' ');
+    var rdtype = temp.pop();
+
+    if(roads[rdtype].full == rdtype) {
+      rdtype = roads[rdtype].abbr;
+    } else {
+      rdtype = roads[rdtype].full;
+    }
+
+    street = temp.join(' ') + ` ${rdtype}`;
+    console.log(error)
+    try {
+      t = (await street_mgrs_data.get(`${street_index[street.toUpperCase()]}:${zip_indexes[zip]}:${number}`))
+    } catch (error) {
+
+    }
+  }
+
+  if(!t && searchNearist) {
+    var last_distance = 9999999999;
+    var it = await street_mgrs_data.iterator({
+      gte: `${street_index[street.toUpperCase()]}:${zip_indexes[zip]}:0`, 
+      lte: `${street_index[street.toUpperCase()]}:${zip_indexes[zip]}:9999999999`
+    })
+    var tmp = null;
+    var last_row = null;
+    console.log('sdlfksd')
+    while(tmp = await it.next()) {
+      if(!tmp) {
+        console.log('no tmp')
+      }
+     
+      var street_num = Number(tmp[0].toString().split(':').pop());
+      var distance = Math.abs(street_num - number);
+      
+      if(last_distance < distance) {
+        it.end();
+        return last_row[1].toString();
+      }
+      last_row = tmp;
+      last_distance = distance;
+    }
+  } else {
+    return t.toString();
+  }
   return null;
 }
 
 /**
+ * Gets the street location in Lat and long by number, street, and zip
+ * @param {*} street - Street
+ * @param {*} zip - Zip code
+ * @returns 
+ */
+async function getLocationByStreetLL(street, zip) {
+  var loc = await getStreetLocation(street, zip);
+  if(loc) {
+   loc = util_mgrs.toPoint(loc);
+   loc = {
+    lat: loc[1],
+    long: loc[0]
+   }
+  }
+  return loc;
+}
+
+/**
+ * Gets all streets in the area around in the distance provided
+ * @param {*} mgrs - MGRS location
+ * @param {*} distance - (Default 100m) Distance in meters Allowed (100m, 1km, 10km, 100km) 
+ */
+async function getStreetsByLocation(mgrs, distance = '100m') {
+  if(!street_index) {
+    throw new Error('Requires zcs-streets module to be loaded');
+  }
+  mgrs = mgrs.toUpperCase();
+  var tmgrs = mgrs;
+  if (isNaN(mgrs[1])) {
+    tmgrs = "0" + mgrs;
+  }
+
+  var block_of_mgrs = [];
+  if(mgrs.length == 15){
+    tmgrs = mgrs.substring(0, 3) +
+    mgrs.substring(3, 5) + 
+    mgrs.substring(5, 6) + 
+    mgrs.substring(6, 7) + 
+    mgrs.substring(7, 8) + 
+    mgrs.substring(10, 11) + 
+    mgrs.substring(11, 12) +
+    mgrs.substring(12, 13);
+  } else if(mgrs.length == 13) {
+    tmgrs = mgrs.substring(0, 3) +
+    mgrs.substring(3, 5) + 
+    mgrs.substring(5, 6) + 
+    mgrs.substring(6, 7) + 
+    mgrs.substring(7, 8) + 
+    mgrs.substring(9, 10) + 
+    mgrs.substring(10, 11) +
+    mgrs.substring(11, 12);
+  }
+  
+  if(distance == '100m') {
+    block_of_mgrs.push(tmgrs);
+  }
+  else if(distance == '1km') {
+    var first_m = tmgrs.substring(0,7)
+    var last_m = tmgrs.substring(8,10)
+    for(var i = 0; i < 10; i++) {
+      for(var j = 0; j < 10; j++) {
+        block_of_mgrs.push(`${first_m}${i}${last_m}${j}`);
+      }
+    }
+  }
+  else if(distance == '10km') {
+    var first_m = tmgrs.substring(0,6)
+    var last_m = tmgrs.substring(8,9)
+    for(var i = 0; i < 100; i++) {
+      for(var j = 0; j < 100; j++) {
+        block_of_mgrs.push(`${first_m}${i}${last_m}${j}`);
+      }
+    }
+  }
+  else if(distance == '100km') {
+    var first_m = tmgrs.substring(0,5)
+    var last_m = tmgrs.substring(8,8)
+    for(var i = 0; i < 1000; i++) {
+      for(var j = 0; j < 1000; j++) {
+        block_of_mgrs.push(`${first_m}${i}${last_m}${j}`);
+      }
+    }
+  }
+  else {
+    throw new Error('Invalid distance');
+  }
+  var streets = [];
+
+
+  for (let i = 0; i < block_of_mgrs.length; i++) {
+    try {
+      var mgrs = block_of_mgrs[i];
+      var tmp = await mgrs_data.get(mgrs);
+
+      console.log(tmp.toString())
+      await __streetsByLocationParse([mgrs,tmp], streets);
+    } catch (error) {
+      //console.log(error)
+    }
+  }
+  
+  return streets;
+}
+
+async function __streetsByLocationParse(tmp, streets) {
+  if(!tmp) {
+    console.log('no tmp')
+  }
+  var mgrs = tmp[0].toString();
+
+  var tstreets = tmp[1].toString();
+  if(!tstreets) {
+    retrun;
+  }
+  tstreets = JSON.parse(tstreets);
+  var street_indexes = Object.keys(tstreets);
+  for(var i = 0; i < street_indexes.length; i++) {
+    var street_numbers = tstreets[street_indexes[i]];
+    var zip_street = street_indexes[i].split(':');
+    var street_zip = zips[zip_street[1]];
+    var street_name = street_names[zip_street[0]];
+  
+    var street_city_state = {city: 'Unknown', state: 'Unknown'};
+    try {
+      street_city_state = getByZip(street_zip);
+    } catch (error) {}
+    for(var j = 0; j < street_numbers.length; j++) {
+      var street_loc = mgrs;
+      try {
+        street_loc = (await street_mgrs_data.get(`${street_indexes[i]}:${street_numbers[j]}`)).toString();
+      } catch (error) {
+        console.log(error)
+      }
+
+      streets.push({
+        street:`${street_numbers[j]} ${street_name}`,
+        city: street_city_state.city,
+        state: street_city_state.state,
+        zip: street_zip,
+        location: street_loc
+      })
+    }
+  }
+}
+
+/**
  *
- * @param {*} opts
  * @param {*} opts.street.enabled - if true, will enable by street searches
- * @param {*} opts.street.location - location o f the zcs-streets repo
+ * @param {*} opts.street.location - location of the zcs-streets repo
+ * @param {*} opts.geo.enabled - if true, will enable geo searches
+ * @param {*} opts.geo.location - location of the zcs-location repo
  * @returns
  */
 exports.zcs = (opts) => {
+
   const functions = {
     getByCityState,
     getByZip,
@@ -316,16 +539,16 @@ exports.zcs = (opts) => {
     functions.streetNumberLookAhead = streetNumberLookAhead;
   }
 
-
   if (opts && opts.geo && opts.geo.enabled) {
     var zcs_location = require(opts.geo.location).zcs_location();
 
     street_mgrs_data = zcs_location.street_mgrs_data;
     mgrs_data = zcs_location.mgrs_data;
-
-    functions.getStreetLocation = getStreetLocation;
+    util_mgrs = zcs_location.mgrs;
+    functions.getLocationByStreet =  getLocationByStreet;
+    functions.getLocationByStreetLL =  getLocationByStreetLL;
+    functions.getStreetsByLocation = getStreetsByLocation;
   }
-
 
   return functions;
 };
