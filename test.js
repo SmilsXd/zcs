@@ -10,6 +10,7 @@ const {
   validZip,
   getCitiesNameByState,
   getCitiesNameAndPopulationByState,
+  getStreetsbyZip,
   getStreetNumbersByName,
   getStreetNumbersByNameAndZip,
   getZipsByStreetName,
@@ -19,7 +20,7 @@ const {
   getLocationByStreetLL,
   getStreetsByLocation
 } = (require("./index.js")).zcs({
-  //street: { enabled: true, location: process.cwd() + "/../zcs-streets/index.js" },
+  street: { enabled: true, location: process.cwd() + "/../zcs-streets/index.js" },
   // geo: { enabled: true, location: process.cwd() + "/../zcs-location/index.js" },
 });
 
@@ -41,7 +42,8 @@ async function myFunc() {
   // console.log(validCity("OrlandFAS"));
   // console.log(getByZip("03809"));
   //console.log(await getStreetNumbersByName("ORANGE STREET"));
-  console.log(await getStreetNumbersByNameAndZip("AEIN ROAD", "32817"));
+  console.log(await getStreetsbyZip("32817"));
+  //console.log(await getStreetNumbersByNameAndZip("AEIN ROAD", "32817"));
   //console.log(await getZipsByStreetName("DUDLEY ROAD"));
   //console.log(streetLookAhead("AEIN ROAD"));
   //console.log((await streetNumberLookAhead(29,"AEIN RO",10)));

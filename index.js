@@ -14,7 +14,7 @@ const { city_data } = require("./data/cities/data.js");
 const { city_population } = require("./data/cities/population.js");
 const { roads } = require("./data/utils/roads.js");
 //optional street
-var street_data, street_names, street_index;
+var street_data, street_names, street_index,streets_by_zip;
 
 //optional location
 var mgrs_data, street_mgrs_data, util_mgrs;
@@ -176,25 +176,52 @@ function _search(arr, thing, ammount, skip = 0) {
 
 // Optional Street Functions
 
+/**
+ * Get all street names by zip code
+ * @param {*} zip - zip code 
+ * @param {*} opts - skip, limit
+ * @returns 
+ */
+async function getStreetsbyZip(zip, opts = {}) {
+  var t = streets_by_zip[zip_indexes[zip]];
+  opts.skip = opts.skip || 0;
+  opts.limit = (opts.limit + opts.skip || 0) || t.length - opts.skip;
+  var tt = [];
+  for(var i = opts.skip; i < opts.limit; i++) {
+    tt.push(street_names[t[i]])
+  }
+  return tt;
+}
 
 
 /**
  * Get all street numbers by street name and zip code
  * @param {*} streetName - street name
  * @param {*} zip - zip code
+ * @param {*} opts - skip, limit
  * @returns 
  */
-async function getStreetNumbersByNameAndZip(streetName,zip) {
+async function getStreetNumbersByNameAndZip(streetName,zip, opts = {}) {
+  
   const streetIndex = street_index[streetName.toUpperCase()];
   var zipindex = zip_indexes[zip];
   var t =  JSON.parse((await street_data.get(streetIndex)).toString());
   var numbers = Object.keys(t);
+  opts.skip = opts.skip || 0;
+  opts.limit = (opts.limit + opts.skip || 0) || numbers.length - opts.skip;
   var n = [];
   for(var i = 0; i < numbers.length; i++) {
+    if(n.length >= opts.limit) {
+      break;
+    }
     var zips = t[numbers[i]];
     for(var j = 0; j < zips.length; j++) {
       if(zips[j] === zipindex) {
-        n.push(numbers[i])
+        if(opts.skip <= 0) {
+          n.push(numbers[i])
+        }else {
+          opts.skip--;
+        }
         break;
       }
     }
@@ -203,12 +230,23 @@ async function getStreetNumbersByNameAndZip(streetName,zip) {
 }
 
 /**
- * Get all street numbers by street name
+ *  Get all street numbers by street name
  * @param {*} streetName - street name
+ * @param {*} opts - skip, limit
  * @returns 
  */
-async function getStreetNumbersByName(streetName) {
+async function getStreetNumbersByName(streetName, opts = {}) {
   const streetIndex = street_index[streetName.toUpperCase()];
+  var numbers = Object.keys(t);
+  opts.skip = opts.skip || 0;
+  opts.limit = (opts.limit + opts.skip || 0) || numbers.length - opts.skip;
+
+
+  var n = [];
+  for(var i = opts.skip; i < opts.limit; i++) {
+    n.push(numbers[i]);
+  }
+  return n;
   return Object.keys(
     JSON.parse((await street_data.get(streetIndex)).toString())
   );
@@ -558,7 +596,9 @@ exports.zcs = (opts) => {
     street_data = zcs_street.street_data;
     street_names = zcs_street.street_names;
     street_index = zcs_street.street_index;
+    streets_by_zip = zcs_street.streets_by_zip;
 
+    functions.getStreetsbyZip = getStreetsbyZip;
     functions.getStreetNumbersByName = getStreetNumbersByName;
     functions.getStreetNumbersByNameAndZip = getStreetNumbersByNameAndZip;
     functions.getZipsByStreetName = getZipsByStreetName;
