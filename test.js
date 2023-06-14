@@ -27,8 +27,8 @@ const {
 
 async function myFunc() {
   // console.log(getByCityState("Orlando"));
-   console.log(getByStateCity("NY", "New York"));
-  // console.log(getCitiesNameByState("FL").length);
+   //console.log(getByStateCity("NY", "New York"));
+  //console.log(getCitiesNameByState("FL"));
    //console.log(getCitiesNameAndPopulationByState("FL").length);
   // console.log(getByZip("03809"));
   // console.log(zipLookAhead("038"));
@@ -44,7 +44,7 @@ async function myFunc() {
    //console.log(getByZip("10001"));
   //console.log(await getStreetNumbersByName("ORANGE STREET"));
   //console.log(await getStreetsbyZip("10001"));
-  console.log(await getStreetsbyStateAndCity("FL","ORLANDO"));
+  console.log(await getStreetsbyStateAndCity("FL","ORLANDO",{skip:5,limit:10}));
   //console.log(await getStreetNumbersByNameAndZip("AEIN ROAD", "32817"));
   //console.log(await getZipsByStreetName("DUDLEY ROAD"));
   //console.log(streetLookAhead("AEIN ROAD"));

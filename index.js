@@ -80,7 +80,7 @@ function getCitiesNameByState(state) {
       for (let i = 0; i < keys.length; i++) {
         tt.push(city_names[keys[i]]);
       }
-      return tt;
+      return tt.sort((a, b) => { return (a > b ? 1 : (a === b ? 0 : -1)) });
   } catch (error) {
     throw new Error("State or City Not Found");
   }
@@ -192,9 +192,10 @@ async function getStreetsbyZip(zip, opts = {}) {
   opts.limit = (opts.limit + opts.skip || 0) || t.length - opts.skip;
   var tt = [];
   for(var i = opts.skip; i < opts.limit; i++) {
+    if(tt.indexOf(street_names[t[j]]) !== -1){continue};
     tt.push(street_names[t[i]])
   }
-  return tt;
+  return tt.sort((a, b) => { return (a > b ? 1 : (a === b ? 0 : -1)) }).slice(opts.skip, opts.limit && opts.limit < tt.length ? opts.limit + opts.skip : tt.length);;
 }
 
 /**
@@ -207,25 +208,16 @@ async function getStreetsbyStateAndCity(state,city, opts = {}) {
   var tt = [];
   var zips = getByStateCity(state,city);
   opts.skip = opts.skip || 0;
-  opts.limit = (opts.limit + opts.skip || 0);
+  opts.limit = opts.limit || 0;
   for(var i = 0; i < zips.length; i++) {
     var t = streets_by_zip[zip_indexes[zips[i]]] || [];
 
     for(var j = 0; j < t.length; j++) {
-      if(opts.skip <= 0) {
-        tt.push(street_names[t[j]])
-      }else {
-        opts.skip--;
-      }
-      if( opts.limit > 0 && tt.length >= opts.limit) {
-        break;
-      }
+      if(tt.indexOf(street_names[t[j]]) !== -1){continue};
+      tt.push(street_names[t[j]])
     }
-    if(opts.limit > 0 && tt.length >= opts.limit) {
-      break;
-    }
- }
-  return tt;
+  }
+  return tt.sort((a, b) => { return (a > b ? 1 : (a === b ? 0 : -1)) }).slice(opts.skip, opts.limit && opts.limit < tt.length ? opts.limit + opts.skip : tt.length);;
 }
 
 
@@ -272,19 +264,15 @@ async function getStreetNumbersByNameAndZip(streetName,zip, opts = {}) {
  */
 async function getStreetNumbersByName(streetName, opts = {}) {
   const streetIndex = street_index[streetName.toUpperCase()];
+  var t = JSON.parse((await street_data.get(streetIndex)).toString());
   var numbers = Object.keys(t);
   opts.skip = opts.skip || 0;
   opts.limit = (opts.limit + opts.skip || 0) || numbers.length - opts.skip;
-
-
   var n = [];
   for(var i = opts.skip; i < opts.limit; i++) {
     n.push(numbers[i]);
   }
   return n;
-  return Object.keys(
-    JSON.parse((await street_data.get(streetIndex)).toString())
-  );
 }
 
 /**
