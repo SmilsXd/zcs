@@ -45,15 +45,19 @@ function getCitiesNameAndPopulationByState(state) {
         var zipsn = [];
         var city = {
           name: city_names[keys[i]],
+          zip: null,
           population: 0
         }
         for (let j = 0; j < _zips.length; j++) {
 
           if(city_names[zip_data[_zips[j]][1]] === city.name) {
-          
-            city.population = city_population[_zips[j]] || 0
+           
+            if(city.population <  city_population[_zips[j]]) {
+              city.population = city_population[_zips[j]];
+              city.zip = zips[_zips[j]] || city.zip || null;
+            }
           } else {
-            console.log(city.name,city_population[_zips[j]],zips[_zips[j]])
+            //console.log(city.name,city_population[_zips[j]],zips[_zips[j]])
           }
        
         }
@@ -193,6 +197,37 @@ async function getStreetsbyZip(zip, opts = {}) {
   return tt;
 }
 
+/**
+ * Get all street names by state and city
+ * @param {*} zip - zip code 
+ * @param {*} opts - skip, limit
+ * @returns 
+ */
+async function getStreetsbyStateAndCity(state,city, opts = {}) {
+  var tt = [];
+  var zips = getByStateCity(state,city);
+  opts.skip = opts.skip || 0;
+  opts.limit = (opts.limit + opts.skip || 0);
+  for(var i = 0; i < zips.length; i++) {
+    var t = streets_by_zip[zip_indexes[zips[i]]] || [];
+
+    for(var j = 0; j < t.length; j++) {
+      if(opts.skip <= 0) {
+        tt.push(street_names[t[j]])
+      }else {
+        opts.skip--;
+      }
+      if( opts.limit > 0 && tt.length >= opts.limit) {
+        break;
+      }
+    }
+    if(opts.limit > 0 && tt.length >= opts.limit) {
+      break;
+    }
+ }
+  return tt;
+}
+
 
 /**
  * Get all street numbers by street name and zip code
@@ -261,7 +296,7 @@ async function getZipsByStreetName(streetName) {
   const t = JSON.parse(
     (await street_data.get(street_index[streetName.toUpperCase()])).toString()
   );
-  console.log(t)
+
   const keys = Object.keys(t);
 
   var zipsn = [];
@@ -381,7 +416,6 @@ async function getLocationByStreet(street, zip, searchNearist = true) {
     }
 
     street = temp.join(' ') + ` ${rdtype}`;
-    console.log(error)
     try {
       t = (await street_mgrs_data.get(`${street_index[street.toUpperCase()]}:${zip_indexes[zip]}:${number}`))
     } catch (error) {
@@ -397,11 +431,7 @@ async function getLocationByStreet(street, zip, searchNearist = true) {
     })
     var tmp = null;
     var last_row = null;
-    console.log('sdlfksd')
     while(tmp = await it.next()) {
-      if(!tmp) {
-        console.log('no tmp')
-      }
      
       var street_num = Number(tmp[0].toString().split(':').pop());
       var distance = Math.abs(street_num - number);
@@ -514,7 +544,6 @@ async function getStreetsByLocation(mgrs, distance = '100m') {
       var mgrs = block_of_mgrs[i];
       var tmp = await mgrs_data.get(mgrs);
 
-      console.log(tmp.toString())
       await __streetsByLocationParse([mgrs,tmp], streets);
     } catch (error) {
       //console.log(error)
@@ -525,9 +554,6 @@ async function getStreetsByLocation(mgrs, distance = '100m') {
 }
 
 async function __streetsByLocationParse(tmp, streets) {
-  if(!tmp) {
-    console.log('no tmp')
-  }
   var mgrs = tmp[0].toString();
 
   var tstreets = tmp[1].toString();
@@ -551,7 +577,6 @@ async function __streetsByLocationParse(tmp, streets) {
       try {
         street_loc = (await street_mgrs_data.get(`${street_indexes[i]}:${street_numbers[j]}`)).toString();
       } catch (error) {
-        console.log(error)
       }
 
       streets.push({
@@ -599,6 +624,7 @@ exports.zcs = (opts) => {
     streets_by_zip = zcs_street.streets_by_zip;
 
     functions.getStreetsbyZip = getStreetsbyZip;
+    functions.getStreetsbyStateAndCity = getStreetsbyStateAndCity;
     functions.getStreetNumbersByName = getStreetNumbersByName;
     functions.getStreetNumbersByNameAndZip = getStreetNumbersByNameAndZip;
     functions.getZipsByStreetName = getZipsByStreetName;
