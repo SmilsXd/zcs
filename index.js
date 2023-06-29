@@ -192,7 +192,7 @@ async function getStreetsbyZip(zip, opts = {}) {
   opts.limit = (opts.limit + opts.skip || 0) || t.length - opts.skip;
   var tt = [];
   for(var i = opts.skip; i < opts.limit; i++) {
-    if(tt.indexOf(street_names[t[j]]) !== -1){continue};
+    if(tt.indexOf(street_names[t[i]]) !== -1){continue};
     tt.push(street_names[t[i]])
   }
   return tt.sort((a, b) => { return (a > b ? 1 : (a === b ? 0 : -1)) }).slice(opts.skip, opts.limit && opts.limit < tt.length ? opts.limit + opts.skip : tt.length);;
