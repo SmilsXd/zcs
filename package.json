@@ -1,6 +1,6 @@
 {
   "name": "zcs",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "description": "A quick and light esm / node module to look up state city or zips to get either.",
   "main": "index.js",
   "scripts": {
