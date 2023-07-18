@@ -444,7 +444,7 @@ async function getLocationByStreet(street, zip, searchNearist = true) {
  * @returns 
  */
 async function getLocationByStreetLL(street, zip) {
-  var loc = await getStreetLocation(street, zip);
+  var loc = await getLocationByStreet(street, zip);
   if(loc) {
    loc = util_mgrs.toPoint(loc);
    loc = {
