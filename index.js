@@ -195,7 +195,11 @@ async function getStreetsbyZip(zip, opts = {}) {
     if(tt.indexOf(street_names[t[i]]) !== -1){continue};
     tt.push(street_names[t[i]])
   }
-  return tt.sort((a, b) => { return (a > b ? 1 : (a === b ? 0 : -1)) }).slice(opts.skip, opts.limit && opts.limit < tt.length ? opts.limit + opts.skip : tt.length);;
+  if(opts.skip || (opts.limit < tt.length && opts.limit !== 0)) {
+    return tt.sort((a, b) => { return (a > b ? 1 : (a === b ? 0 : -1))}).splice(opts.skip, opts.limit && opts.limit < tt.length ? opts.limit + opts.skip : tt.length);
+  } else {
+    return tt.sort((a, b) => { return (a > b ? 1 : (a === b ? 0 : -1))});
+  }
 }
 
 /**
